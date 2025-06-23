@@ -47,10 +47,11 @@ namespace BabySmash
             this.DataContext = controller;
             InitializeComponent();
 
-            var hwnd = new WindowInteropHelper(this).Handle;
-            HwndSource.FromHwnd(hwnd).AddHook(WndProc);
-
-            //ResetCanvas();
+            this.Loaded += (sender, args) =>
+            {
+                var hwnd = new WindowInteropHelper(this).Handle;
+                HwndSource.FromHwnd(hwnd).AddHook(WndProc);
+            };
         }
 
         protected override void OnMouseWheel(MouseWheelEventArgs e)
