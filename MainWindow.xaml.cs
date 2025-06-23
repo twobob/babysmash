@@ -1,7 +1,9 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Interop;
 
 namespace BabySmash
 {
@@ -12,6 +14,22 @@ namespace BabySmash
 
         private UserControl customCursor;
         public UserControl CustomCursor { get { return customCursor; } set { customCursor = value; } }
+
+        private const int WM_ACTIVATE = 0x0006;
+        private const int WA_INACTIVE = 0;
+
+        private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+        {
+            if (msg == WM_ACTIVATE && wParam.ToInt32() == WA_INACTIVE)
+            {
+                if (!controller.isOptionsDialogShown)
+                {
+                    Topmost = true;
+                    Activate();
+                }
+            }
+            return IntPtr.Zero;
+        }
 
         public void AddFigure(UserControl c)
         {
@@ -28,6 +46,9 @@ namespace BabySmash
             this.controller = c;
             this.DataContext = controller;
             InitializeComponent();
+
+            var hwnd = new WindowInteropHelper(this).Handle;
+            HwndSource.FromHwnd(hwnd).AddHook(WndProc);
 
             //ResetCanvas();
         }
